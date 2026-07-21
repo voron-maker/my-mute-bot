@@ -112,3 +112,24 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
+# Полный сброс/отмена лимита: /unlimit @username
+@dp.message(Command("unlimit"))
+async def remove_limit(message: types.Message):
+    # Проверка: только ты можешь снимать лимит
+    if message.from_user.id != MY_TELEGRAM_ID:
+        await message.reply("❌ Только владелец бота может отменять лимиты!")
+        return
+
+    args = message.text.split()
+    if len(args) < 2:
+        await message.reply("⚠️ Укажи юзернейм.\nПример: `/unlimit @username`", parse_mode="Markdown")
+        return
+
+    target_username = args[1].replace("@", "").lower()
+
+    if target_username in user_limits:
+        del user_limits[target_username]
+        await message.reply(f"🔓 Лимит для пользователя @{target_username} **полностью снят**! Бот больше не будет его мутить.", parse_mode="Markdown")
+    else:
+        await message.reply(f"ℹ️ У пользователя @{target_username} и так не было лимитов.")
+
